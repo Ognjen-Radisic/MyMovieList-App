@@ -42,12 +42,46 @@ class UI {
 
     list.appendChild(row)
   }
+
+  static clearFields() {
+    document.querySelector('#title').value = ''
+    document.querySelector('#director').value = ''
+    document.querySelector('#year').value = ''
+  }
+
+  static deleteMovie(element) {
+    if (element.classList.contains('delete')) {
+      element.parentNode.parentNode.remove()
+    }
+  }
 }
 
 //Class for local storage
 
 //Event listener for displaying book
 document.addEventListener('DOMContentLoaded', UI.displayMovies)
+
 //Event listener for adding books
+document.querySelector('#movie-form').addEventListener('submit', (e) => {
+  //prevent submit so we can manipulate and use data
+  e.preventDefault()
+
+  //Get data from the form
+  const title = document.querySelector('#title').value
+  const director = document.querySelector('#director').value
+  const year = document.querySelector('#year').value
+
+  //Create instance of class book
+  const movie = new Movie(title, director, year)
+
+  //Add book to UI
+  UI.addMovieToList(movie)
+
+  //Clear fields
+  UI.clearFields()
+})
 
 //Event listener for removing books
+document.querySelector('#movie-list').addEventListener('click', (e) => {
+  UI.deleteMovie(e.target)
+})
