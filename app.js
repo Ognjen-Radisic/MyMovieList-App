@@ -10,20 +10,7 @@ class Movie {
 //Class for UI
 class UI {
   static displayMovies() {
-    const StoredMovies = [
-      {
-        title: 'Fight Club',
-        director: 'David Fincher',
-        year: 1999,
-      },
-      {
-        title: 'Se7en',
-        director: 'David Fincher',
-        year: 1995,
-      },
-    ]
-
-    const movies = StoredMovies
+    const movies = Storage.getMovies()
 
     movies.forEach((movie) => UI.addMovieToList(movie))
   }
@@ -52,6 +39,15 @@ class UI {
   static deleteMovie(element) {
     if (element.classList.contains('delete')) {
       element.parentNode.parentNode.remove()
+
+      //Delete movie from local storage
+      Storage.removeMovie(
+        element.parentElement.previousElementSibling.previousElementSibling
+          .previousElementSibling.textContent
+      )
+
+      //Alert user succesful removed movie
+      UI.alertUser('Movie removed from list.', 'success')
     }
   }
 
@@ -67,16 +63,48 @@ class UI {
     container.insertBefore(div, form)
 
     //Vanish in 3 seconds
-    setTimeout(() => document.querySelector('.alert').remove(), 3000)
+    setTimeout(() => document.querySelector('.alert').remove(), 2500)
   }
 }
 
 //Class for local storage
+class Storage {
+  static getMovies() {
+    let movies
 
-//Event listener for displaying book
+    if (localStorage.getItem('movies') === null) {
+      movies = []
+    } else {
+      movies = JSON.parse(localStorage.getItem('movies'))
+    }
+
+    return movies
+  }
+
+  static addMovie(movie) {
+    const movies = Storage.getMovies()
+
+    movies.push(movie)
+    localStorage.setItem('movies', JSON.stringify(movies))
+  }
+
+  static removeMovie(title) {
+    const movies = Storage.getMovies()
+
+    movies.forEach((el, index) => {
+      if (el.title === title) {
+        movies.splice(index, 1)
+      }
+    })
+
+    localStorage.setItem('movies', JSON.stringify(movies))
+  }
+}
+
+//Event listener for displaying movie
 document.addEventListener('DOMContentLoaded', UI.displayMovies)
 
-//Event listener for adding books
+//Event listener for adding movies
 document.querySelector('#movie-form').addEventListener('submit', (e) => {
   //prevent submit so we can manipulate and use data
   e.preventDefault()
@@ -88,20 +116,39 @@ document.querySelector('#movie-form').addEventListener('submit', (e) => {
 
   //input Validation
   if (title === '' || director === '' || year === '') {
+    //Alert user for wrong input
     UI.alertUser('Please fill in all fields.', 'danger')
   } else {
-    //Create instance of class book
+    //Create instance of class movie
     const movie = new Movie(title, director, year)
 
-    //Add book to UI
+    //Add movie to local Storage
+    Storage.addMovie(movie)
+
+    //Add movie to UI
     UI.addMovieToList(movie)
+
+    //Alert user succesful added movie
+    UI.alertUser('Movie added to list.', 'success')
 
     //Clear fields
     UI.clearFields()
   }
 })
 
-//Event listener for removing books
+//Event listener for removing movies
 document.querySelector('#movie-list').addEventListener('click', (e) => {
+  //Delete movie from UI
   UI.deleteMovie(e.target)
+
+  //delete from storage and alert in UI.deleteMOvie() method
+
+  //   //Delete movie from local storage
+  //   Storage.removeMovie(
+  //     e.target.parentElement.previousElementSibling.previousElementSibling
+  //       .previousElementSibling.textContent
+  //   )
+
+  //   //Alert user succesful removed movie
+  //   UI.alertUser('Movie removed from list.', 'success')
 })
