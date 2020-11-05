@@ -54,6 +54,21 @@ class UI {
       element.parentNode.parentNode.remove()
     }
   }
+
+  static alertUser(message, classAttribute) {
+    let div = document.createElement('div')
+    div.className = `alert alert-dismissible alert-${classAttribute}`
+
+    div.appendChild(document.createTextNode(message))
+
+    const container = document.querySelector('.container')
+    const form = document.querySelector('#movie-form')
+
+    container.insertBefore(div, form)
+
+    //Vanish in 3 seconds
+    setTimeout(() => document.querySelector('.alert').remove(), 3000)
+  }
 }
 
 //Class for local storage
@@ -71,14 +86,19 @@ document.querySelector('#movie-form').addEventListener('submit', (e) => {
   const director = document.querySelector('#director').value
   const year = document.querySelector('#year').value
 
-  //Create instance of class book
-  const movie = new Movie(title, director, year)
+  //input Validation
+  if (title === '' || director === '' || year === '') {
+    UI.alertUser('Please fill in all fields.', 'danger')
+  } else {
+    //Create instance of class book
+    const movie = new Movie(title, director, year)
 
-  //Add book to UI
-  UI.addMovieToList(movie)
+    //Add book to UI
+    UI.addMovieToList(movie)
 
-  //Clear fields
-  UI.clearFields()
+    //Clear fields
+    UI.clearFields()
+  }
 })
 
 //Event listener for removing books
